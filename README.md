@@ -13,6 +13,37 @@ Boolean logic, and shows the free-slot count on a 2-digit 7-segment display.
 
 ---
 
+## Screenshots
+
+### Dashboard
+
+![Dashboard with the 7-segment free-slot counter, entry gate, switches and the 20 parking slots](docs/screenshots/dashboard.png)
+
+### A car entering
+
+When **Car Enters** is clicked, the car stops at the gate (V = 1). The gate logic gives
+UP = 1, so the barrier rises, the light turns green and the car parks in the first free slot.
+
+![Car entering: barrier up, green light, V=1 A=1 E=0 S=0](docs/screenshots/car-entering.png)
+
+### Logic Panel
+
+Live inputs and outputs, the equations with the current values filled in, the comparator
+and BCD-to-7-segment decoder, and the truth table with the current row (12: V=1, A=1)
+highlighted.
+
+![Logic Panel with inputs, outputs, Boolean equations, decoder and truth table](docs/screenshots/logic-panel.png)
+
+### History
+
+![History page with entry, exit and denied counts and the event log](docs/screenshots/history.png)
+
+### On a phone
+
+<img src="docs/screenshots/mobile.png" alt="Dashboard on a phone-sized screen" width="300">
+
+---
+
 ## 1. Features
 
 - **Dashboard**: 20 clickable slot boxes (green = free, red = occupied), a free-slot
@@ -31,6 +62,7 @@ Boolean logic, and shows the free-slot count on a 2-digit 7-segment display.
 Smart-Parking-Garage-Slot-Tracker/
 ├── package.json            # helper scripts to run everything from the root
 ├── check-install.js        # checks Node version + installed packages before "npm run dev"
+├── docs/screenshots/       # the screenshots shown in this README
 ├── server/                 # BACKEND
 │   ├── config.js           # CAPACITY = 20, port, database path
 │   ├── logic.js            # gate equations, comparator, BCD-to-7-segment decoder
