@@ -8,7 +8,7 @@ Boolean logic, and shows the free-slot count on a 2-digit 7-segment display.
 | -------- | ----------------------------------- |
 | Frontend | React (Vite) + Tailwind CSS         |
 | Backend  | Node.js + Express (REST API)        |
-| Database | SQLite (via `better-sqlite3`)       |
+| Database | SQLite (Node's built-in `node:sqlite`, nothing to compile) |
 | Logic    | `server/logic.js` (plain JavaScript) |
 
 ---
@@ -30,6 +30,7 @@ Boolean logic, and shows the free-slot count on a 2-digit 7-segment display.
 ```
 Smart-Parking-Garage-Slot-Tracker/
 ├── package.json            # helper scripts to run everything from the root
+├── check-install.js        # checks Node version + installed packages before "npm run dev"
 ├── server/                 # BACKEND
 │   ├── config.js           # CAPACITY = 20, port, database path
 │   ├── logic.js            # gate equations, comparator, BCD-to-7-segment decoder
@@ -54,10 +55,10 @@ Smart-Parking-Garage-Slot-Tracker/
 
 ### Step 1: Install Node.js
 
-Install **Node.js 22 LTS or newer** from <https://nodejs.org>. Check it:
+Install **Node.js 22 LTS (22.13 or newer) or Node.js 24** from <https://nodejs.org>. Check it:
 
 ```bash
-node -v    # should print v22.x.x or higher
+node -v    # should print v22.13.0 or higher (v24 is fine)
 npm -v
 ```
 
@@ -78,10 +79,12 @@ cd Smart-Parking-Garage-Slot-Tracker
 ### Step 3: Install all dependencies
 
 ```bash
-npm run install:all
+npm install
 ```
 
-This installs the packages for the root folder, `server/` and `client/`.
+This one command installs the packages for the root folder **and** for `server/` and
+`client/`. Wait until it finishes and ends with `found 0 vulnerabilities` (or similar) and no
+red `npm error` lines.
 
 ### Step 4: Start the app
 
@@ -266,5 +269,5 @@ the segments that the decoder turned on.
 | `ENOENT: Could not read package.json`     | You are not in the project folder. `cd Smart-Parking-Garage-Slot-Tracker` and run the command again. |
 | "Cannot reach the server" on the page     | The backend is not running. Start it (`npm run dev`).                    |
 | `EADDRINUSE: port 4000` or `5173`         | Another program uses that port. Close it, or set `PORT=4001` for the server and change the proxy in `client/vite.config.js`. |
-| `better-sqlite3` fails to install         | Use Node.js 22 LTS (it has ready-made binaries). Delete `node_modules` and run `npm run install:all` again. |
+| `Cannot find module 'express'` or `'vite' is not recognized` | The server/client packages are not installed. Run `npm install` in the project folder and let it finish. |
 | Want a fresh garage                       | Click **Reset** on the Dashboard, or delete `server/data/`.              |

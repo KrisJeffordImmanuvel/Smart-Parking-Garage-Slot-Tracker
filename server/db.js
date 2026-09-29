@@ -1,6 +1,7 @@
 // db.js
 // -----------------------------------------------------------------------------
-// DATABASE layer (SQLite, using the better-sqlite3 package).
+// DATABASE layer (SQLite, using Node.js's BUILT-IN "node:sqlite" module, so
+// there is nothing extra to install or compile).
 //
 // Three small tables:
 //   slots    -> one row per parking slot: id (1..20) and occupied (0/1)
@@ -13,12 +14,12 @@
 
 const fs = require('fs');
 const path = require('path');
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite');
 const { CAPACITY, DB_FILE } = require('./config');
 
 // Make sure the folder for the database file exists, then open the database.
 fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
-const db = new Database(DB_FILE);
+const db = new DatabaseSync(DB_FILE);
 
 // Create the tables the first time the server starts.
 db.exec(`
