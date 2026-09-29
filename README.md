@@ -65,11 +65,12 @@ npm -v
 ### Step 2: Get the project
 
 ```bash
-git clone -b claude/intelligent-ptolemy-j0b235 https://github.com/KrisJeffordImmanuvel/Smart-Parking-Garage-Slot-Tracker.git
+git clone https://github.com/KrisJeffordImmanuvel/Smart-Parking-Garage-Slot-Tracker.git
 cd Smart-Parking-Garage-Slot-Tracker
 ```
 
-(Once this branch is merged into `main`, a plain `git clone <url>` without `-b ...` is enough.)
+(No Git? On the GitHub page click **Code → Download ZIP**, unzip it, and open PowerShell or a
+terminal inside the unzipped folder.)
 
 > **Important:** every `npm run ...` command below must be run **inside the
 > `Smart-Parking-Garage-Slot-Tracker` folder** (the one that contains `package.json`,
