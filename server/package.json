@@ -4,13 +4,15 @@
   "description": "Express + SQLite API for the Smart Parking Garage Slot Tracker",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "dev": "node --watch --disable-warning=ExperimentalWarning server.js",
     "test": "node --test"
   },
   "dependencies": {
-    "better-sqlite3": "^13.0.3",
     "express": "^5.2.1"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
+  }
 }
