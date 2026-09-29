@@ -64,9 +64,16 @@ npm -v
 ### Step 2: Get the project
 
 ```bash
-git clone <this-repository-url>
+git clone -b claude/intelligent-ptolemy-j0b235 https://github.com/KrisJeffordImmanuvel/Smart-Parking-Garage-Slot-Tracker.git
 cd Smart-Parking-Garage-Slot-Tracker
 ```
+
+(Once this branch is merged into `main`, a plain `git clone <url>` without `-b ...` is enough.)
+
+> **Important:** every `npm run ...` command below must be run **inside the
+> `Smart-Parking-Garage-Slot-Tracker` folder** (the one that contains `package.json`,
+> `client` and `server`). If you see `ENOENT ... Could not read package.json`, you are
+> in the wrong folder, so `cd` into the project folder first.
 
 ### Step 3: Install all dependencies
 
@@ -256,6 +263,7 @@ the segments that the decoder turned on.
 
 | Problem                                   | Fix                                                                      |
 | ----------------------------------------- | ------------------------------------------------------------------------ |
+| `ENOENT: Could not read package.json`     | You are not in the project folder. `cd Smart-Parking-Garage-Slot-Tracker` and run the command again. |
 | "Cannot reach the server" on the page     | The backend is not running. Start it (`npm run dev`).                    |
 | `EADDRINUSE: port 4000` or `5173`         | Another program uses that port. Close it, or set `PORT=4001` for the server and change the proxy in `client/vite.config.js`. |
 | `better-sqlite3` fails to install         | Use Node.js 22 LTS (it has ready-made binaries). Delete `node_modules` and run `npm run install:all` again. |
