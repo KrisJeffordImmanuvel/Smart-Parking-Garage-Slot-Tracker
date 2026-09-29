@@ -1,0 +1,16 @@
+/* Tailwind CSS (v4) - this one line brings in all the utility classes. */
+@import 'tailwindcss';
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+}
+
+/* Small shake used when a car is refused at the gate. */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.animate-shake {
+  animation: shake 0.3s ease-in-out 3;
+}
