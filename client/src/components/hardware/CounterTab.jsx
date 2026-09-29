@@ -16,9 +16,9 @@ const TS = ['T4', 'T3', 'T2', 'T1', 'T0'];
 const bitString = (bits) => BITS.map((b) => bits[b]).join('');
 
 // A row of five flip-flop boxes. `toggled` marks the ones whose T input was 1.
-function FlipFlops({ bits, toggled = {}, size = 'h-14 w-14 text-2xl' }) {
+function FlipFlops({ bits, toggled = {}, size = 'h-11 w-11 text-xl sm:h-14 sm:w-14 sm:text-2xl' }) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-1.5 sm:gap-2">
       {BITS.map((name, i) => {
         const value = bits[name];
         const flip = toggled[TS[i]] === 1;

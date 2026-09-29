@@ -15,14 +15,21 @@ Boolean logic, and shows the free-slot count on a 2-digit 7-segment display.
 
 ## Screenshots
 
+All screenshots come from one demo run. The garage filled up, one car was turned away,
+nine cars left, and then a new car drove in, so every page shows the same garage (9 free slots).
+
 ### Dashboard
+
+The 7-segment counter shows 09 and the counter bits `01001`. The last car's path through
+the entry FSM (IDLE → ARMED → UNDER → COUNT, where DEC counts it) is shown under the buttons.
 
 ![Dashboard with the 7-segment free-slot counter, entry gate, switches and the 20 parking slots](docs/screenshots/dashboard.png)
 
 ### A car entering
 
 When **Car Enters** is clicked, the car stops at the gate (V = 1). The gate logic gives
-UP = 1, so the barrier rises, the light turns green and the car parks in the first free slot.
+UP = 1, so the barrier rises and the light turns green. The entry FSM then sends one DEC
+pulse, which clocks the counter down, and the car parks in the first free slot.
 
 ![Car entering: barrier up, green light, V=1 A=1 E=0 S=0](docs/screenshots/car-entering.png)
 
@@ -42,23 +49,38 @@ never happen) let EMPTY shrink to a single AND gate, `Q4·Q2`.
 ![CO1 comparator K-maps for FULL and EMPTY](docs/screenshots/hardware-co1-comparator.png)
 
 **CO1: minimized BCD-to-7-segment decoder.** Pick a segment, then click a product term to see its group.
+Here segment **d** is selected, and the highlighted group uses the X cells for codes 10–15.
 
 ![CO1 decoder K-map, equations and truth table](docs/screenshots/hardware-co1-decoder.png)
 
-**CO3: synchronous up/down counter.** Live T flip-flops. The ringed ones had T = 1 and toggled on
-the last clock, and the right-hand side previews the next clock in both directions.
+**CO3: synchronous up/down counter.** Live T flip-flops. On this clock the count went from 8 to 7
+(`01000 → 00111`): T3, T2, T1 and T0 were all 1, so those four flip-flops toggled together (they are
+ringed). The right-hand side previews the next clock in both directions.
 
 ![CO3 up/down counter flip-flops and next-state preview](docs/screenshots/hardware-co3-counter.png)
 
-**CO5: Verilog FSM, debouncing and display multiplexing.**
+**CO5: entry FSM.** Set V, S and A, then press ⏱ Clock. Here the car is under the barrier (state
+UNDER), and the amber arrow is the transition just taken.
 
 ![CO5 entry FSM state diagram and simulator](docs/screenshots/hardware-co5-fsm.png)
 
+**CO5: debouncing.** One press of a bouncing button has several rising edges, but the
+debouncer turns it into one clean pulse.
+
 ![CO5 debounce timing diagram](docs/screenshots/hardware-co5-debounce.png)
+
+**CO5: display multiplexing.** Both digits share one decoder. At a slow refresh rate you can
+see the digits take turns.
 
 ![CO5 display multiplexing demo](docs/screenshots/hardware-co5-mux.png)
 
+**CO5: Verilog source.** Every module from `hardware/`, viewable in the app, with the testbench command.
+
+![CO5 Verilog source viewer showing entry_fsm.v](docs/screenshots/hardware-co5-verilog.png)
+
 ### History
+
+The counts at the top include the **1 denied** car that arrived while the garage was full.
 
 ![History page with entry, exit and denied counts and the event log](docs/screenshots/history.png)
 

@@ -1,9 +1,9 @@
-// NavBar.jsx - top navigation bar with links to the three pages.
+// NavBar.jsx - top navigation bar with links to the four pages.
 import { NavLink } from 'react-router-dom';
 
 const links = [
   { to: '/', label: 'Dashboard' },
-  { to: '/logic', label: 'Logic Panel' },
+  { to: '/logic', label: 'Logic Panel', short: 'Logic' }, // short label on small phones
   { to: '/hardware', label: 'Hardware' },
   { to: '/history', label: 'History' },
 ];
@@ -23,19 +23,27 @@ export default function NavBar() {
           </div>
         </div>
 
-        {/* Page links - NavLink highlights the page that is open */}
-        <div className="flex gap-1 rounded-xl bg-slate-900 p-1">
+        {/* Page links - NavLink highlights the page that is open.
+            On phones the bar takes the full width and the links share it. */}
+        <div className="flex w-full gap-1 rounded-xl bg-slate-900 p-1 sm:w-auto">
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end
               className={({ isActive }) =>
-                'rounded-lg px-3 py-1.5 text-sm font-medium transition ' +
+                'flex-1 rounded-lg px-2 py-1.5 text-center text-[13px] font-medium whitespace-nowrap transition sm:flex-none sm:px-3 sm:text-sm ' +
                 (isActive ? 'bg-emerald-500 text-slate-950' : 'text-slate-300 hover:bg-slate-800')
               }
             >
-              {link.label}
+              {link.short ? (
+                <>
+                  <span className="min-[370px]:hidden">{link.short}</span>
+                  <span className="hidden min-[370px]:inline">{link.label}</span>
+                </>
+              ) : (
+                link.label
+              )}
             </NavLink>
           ))}
         </div>
