@@ -4,6 +4,11 @@ A full-stack web app for the **Digital Systems Design** microproject.
 It simulates a 20-slot parking garage whose entry barrier is controlled by
 Boolean logic, and shows the free-slot count on a 2-digit 7-segment display.
 
+**🌐 Live demo: <https://smart-parking-garage.onrender.com>**
+
+The demo runs on Render's free plan. If nobody has visited for 15 minutes, the first load takes
+about a minute while it wakes up. The garage data resets whenever the app restarts.
+
 | Part     | Technology                          |
 | -------- | ----------------------------------- |
 | Frontend | React (Vite) + Tailwind CSS         |
