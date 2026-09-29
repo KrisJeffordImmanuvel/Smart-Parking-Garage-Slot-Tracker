@@ -1,0 +1,23 @@
+# render.yaml - one-click deploy on Render (https://render.com) as a Blueprint.
+#
+# Render runs ONE web service: Express serves both the API (/api/...) and the
+# built React website (client/dist) on the same address.
+#
+# Free plan notes:
+#   - the app sleeps after 15 minutes without visitors; the next visit takes
+#     about a minute to wake it up
+#   - the disk is temporary: the SQLite data (slots + history) starts fresh
+#     after every restart or redeploy
+services:
+  - type: web
+    name: smart-parking-garage
+    runtime: node
+    plan: free
+    # --include=dev so Vite (a dev dependency of the client) is installed for the build
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/status
+    autoDeploy: true # redeploy every time main changes
+    envVars:
+      - key: NODE_VERSION # node:sqlite needs Node.js 22.13 or newer
+        value: 22.22.2

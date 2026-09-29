@@ -126,6 +126,7 @@ Both are tested: `npm test` runs 9 JavaScript tests, and the Verilog testbench r
 ```
 Smart-Parking-Garage-Slot-Tracker/
 ├── package.json            # helper scripts to run everything from the root
+├── render.yaml             # one-click deploy settings for Render
 ├── check-install.js        # checks Node version + installed packages before "npm run dev"
 ├── docs/screenshots/       # the screenshots shown in this README
 ├── hardware/               # VERILOG (CO5): FSM, debounce, counter, comparator, decoder, mux, testbench
@@ -229,6 +230,48 @@ server and delete the `server/data` folder.
 To simulate the Verilog design (needs [Icarus Verilog](https://bleyer.org/icarus/)),
 follow [`hardware/README.md`](hardware/README.md). It also covers running the design on a
 Basys 3 FPGA with Vivado.
+
+### Deploy online (Render, free)
+
+The repo includes [`render.yaml`](render.yaml), so [Render](https://render.com) can deploy it in a
+few clicks. One web service runs Express, which serves the API and the built React website on the
+same address.
+
+1. Sign up at <https://render.com> with **your GitHub account**.
+2. In the Render dashboard, click **New → Blueprint**.
+3. Pick the **Smart-Parking-Garage-Slot-Tracker** repository. If it's not listed, click
+   *Configure account* and give Render access to it.
+4. Render reads `render.yaml` and shows one service, **smart-parking-garage** (Free). Click
+   **Deploy Blueprint** (the button may say **Apply**).
+5. Wait 2–4 minutes for the build to finish. Your site is then live at an address like
+   `https://smart-parking-garage.onrender.com`, shown at the top of the service page.
+
+Every merge to `main` redeploys automatically.
+
+<details>
+<summary>Setting it up by hand instead of with the Blueprint</summary>
+
+**New → Web Service**, pick the repo, then set:
+
+| Setting | Value |
+| --- | --- |
+| Runtime | Node |
+| Build Command | `npm install --include=dev && npm run build` |
+| Start Command | `npm start` |
+| Instance Type | Free |
+| Environment variable | `NODE_VERSION` = `22.22.2` |
+| Health Check Path | `/api/status` |
+
+</details>
+
+**Free-plan limits:**
+- **The app sleeps** after 15 minutes without visitors. The next visit takes about a minute to wake it,
+  so open the site a few minutes before a demo.
+- **The data resets:** the free disk is temporary, so the SQLite data (slots and history) starts fresh
+  after every restart or redeploy.
+- **To keep data**, use a paid instance with a **persistent disk** (for example mounted at
+  `/var/data`), and add the environment variable `DB_FILE` = `/var/data/parking.db`.
+- **Anyone with the link** can press the buttons and Reset. It's a demo, so there's no login.
 
 ---
 
