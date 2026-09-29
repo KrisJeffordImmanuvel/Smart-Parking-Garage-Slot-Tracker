@@ -130,6 +130,10 @@ npm run dev
 This starts the backend on <http://localhost:4000> and the frontend on
 <http://localhost:5173>. Open **<http://localhost:5173>** in your browser.
 
+> Port **4000** is only the backend API. Opening it in the browser shows a small help
+> page, not the app. Always use **5173** while `npm run dev` is running, and keep the
+> terminal open. Closing it stops the site.
+
 **Option B: two terminals**
 
 ```bash
