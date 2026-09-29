@@ -22,17 +22,20 @@ const SEGMENT_SHAPES = {
   g: '12,46 48,46 52,50 48,54 12,54 8,50',
 };
 
-export function Digit({ segments, className = 'h-24 w-14' }) {
+// `highlight` (optional) draws one segment in amber, e.g. to show which
+// segment a K-map is about.
+export function Digit({ segments, className = 'h-24 w-14', highlight = null }) {
   return (
     <svg viewBox="0 0 60 100" className={className}>
       <g transform="skewX(-6) translate(6 0)">
         {Object.entries(SEGMENT_SHAPES).map(([name, points]) => {
           const on = segments?.[name] === 1;
+          const fill = name === highlight ? '#fbbf24' : on ? '#ef4444' : '#3b1414';
           return (
             <polygon
               key={name}
               points={points}
-              fill={on ? '#ef4444' : '#3b1414'}
+              fill={fill}
               style={on ? { filter: 'drop-shadow(0 0 4px rgba(239,68,68,0.9))' } : undefined}
             />
           );
