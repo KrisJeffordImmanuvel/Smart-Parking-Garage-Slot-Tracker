@@ -27,4 +27,10 @@ export const api = {
   getHistory: () => request('GET', '/api/history'),
   getTruthTable: () => request('GET', '/api/truth-table'),
   reset: () => request('POST', '/api/reset'),
+
+  // Hardware Design page
+  getDesign: () => request('GET', '/api/design'),
+  fsmStep: (values) => request('POST', '/api/fsm/step', values), // { state, V, A, S }
+  getDebounceDemo: () => request('GET', '/api/debounce-demo'),
+  getVerilog: () => request('GET', '/api/verilog'),
 };

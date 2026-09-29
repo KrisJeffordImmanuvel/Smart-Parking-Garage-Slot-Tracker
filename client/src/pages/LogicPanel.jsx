@@ -134,17 +134,24 @@ export default function LogicPanel() {
       <Card title="Comparator & BCD-to-7-Segment Decoder" subtitle={`Free-slot count = ${status.freeCount}`}>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2 font-mono text-sm">
-            <p>
-              FULL&nbsp;&nbsp;= (count = 0)&nbsp;&nbsp;= <span className="font-bold">{status.FULL}</span>
+            <p className="text-slate-400">
+              Counter Q4 Q3 Q2 Q1 Q0 = {['Q4', 'Q3', 'Q2', 'Q1', 'Q0'].map((q) => status.counter.bits[q]).join(' ')}
             </p>
             <p>
-              EMPTY = (count = {status.capacity}) = <span className="font-bold">{status.EMPTY}</span>
+              FULL&nbsp;&nbsp;= <Not>Q4</Not>·<Not>Q3</Not>·<Not>Q2</Not>·<Not>Q1</Not>·<Not>Q0</Not> ={' '}
+              <span className="font-bold">{status.FULL}</span>
+              <span className="text-slate-500"> (count = 0)</span>
             </p>
             <p>
-              A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <Not>FULL</Not>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <span className="font-bold">{A}</span>
+              EMPTY = Q4·Q2 = <span className="font-bold">{status.EMPTY}</span>
+              <span className="text-slate-500"> (count = {status.capacity})</span>
+            </p>
+            <p>
+              A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <Not>FULL</Not> = <span className="font-bold">{A}</span>
             </p>
             <p className="pt-2 text-xs text-slate-500">
-              The count is split into two BCD digits; each digit goes through the decoder, which lights segments a–g.
+              Minimized with K-maps (see Hardware → CO1). The count is split into two BCD digits; each goes through the
+              decoder, which lights segments a–g.
             </p>
           </div>
 

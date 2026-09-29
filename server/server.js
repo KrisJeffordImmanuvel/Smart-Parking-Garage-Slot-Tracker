@@ -11,6 +11,10 @@
 //
 // Extra helper routes used by the frontend:
 //   GET  /api/truth-table  -> the 16-row truth table produced by logic.js
+//   GET  /api/design       -> K-maps, equations, counter table, FSM states
+//   POST /api/fsm/step     -> one clock tick of the entry FSM
+//   GET  /api/debounce-demo-> a simulated bouncing button press, debounced
+//   GET  /api/verilog      -> the Verilog files from the /hardware folder
 //   POST /api/reset        -> free all slots, switches off, clear history
 // -----------------------------------------------------------------------------
 
@@ -50,6 +54,11 @@ function buildStatus() {
     inputs, // V, A, E, S
     gate: logic.gateLogic(inputs), // UP, GREEN, RED, FULL
     display: logic.twoDigitDisplay(freeCount), // BCD + 7-segment outputs
+    counter: {
+      bits: logic.toBits(freeCount), // the 5 flip-flops Q4..Q0
+      nextDown: logic.counterStep(freeCount, 'DOWN', CAPACITY), // what a car ENTERING would do
+      nextUp: logic.counterStep(freeCount, 'UP', CAPACITY), //     what a car EXITING would do
+    },
   };
 }
 
@@ -66,46 +75,48 @@ app.get('/api/status', (req, res) => {
 });
 
 // ----------------------------- POST /api/enter -------------------------------
-// A car arrives at the entry gate, so for this moment V = 1.
-// The gate logic decides whether the barrier goes UP.
+// A car drives in. Three digital blocks work together, as in the hardware:
+//   1. Gate logic   : with the car at the gate (V = 1), is the barrier UP?
+//   2. Entry FSM    : IDLE -> ARMED -> UNDER -> COUNT gives one DEC pulse
+//                     only if the car was allowed in (V·A = 1).
+//   3. Counter (CO3): the DEC pulse clocks the up/down counter DOWN by one.
 app.post('/api/enter', (req, res) => {
   const freeCount = db.countFreeSlots();
   const { E, S } = db.getSwitches();
   const A = logic.comparator(freeCount, CAPACITY).A;
 
-  // Evaluate the gate with the car waiting at the gate (V = 1).
+  // 1. Evaluate the gate with the car waiting at the gate (V = 1).
   const gate = logic.gateLogic({ V: 1, A, E, S });
   const gateInputs = { V: 1, A, E, S };
+
+  // 2. Run the entry FSM through the sensor sequence of one car.
+  const fsm = logic.runEntrySequence(A);
 
   // Case 1: barrier stays DOWN (garage full, no override) -> car is turned away.
   if (!gate.UP) {
     db.addHistory('DENIED', null, freeCount, 'Entry gate (garage FULL)');
-    return res.json({
-      ok: false,
-      message: 'Garage is FULL - barrier stays down.',
-      gate,
-      gateInputs,
-      status: buildStatus(),
-    });
+    return res.json({ ok: false, message: 'Garage is FULL - barrier stays down.', gate, gateInputs, fsm, status: buildStatus() });
   }
 
-  // Case 2: barrier went UP only because of E or S, but there is no free slot.
-  // The count must never go below 0, so the car is not counted.
-  if (freeCount === 0) {
+  // Case 2: barrier went UP only because of E or S, but A = 0, so the FSM never
+  // arms and there is no DEC pulse: the count must never go below 0.
+  if (!fsm.DEC) {
     db.addHistory('DENIED', null, freeCount, 'Entry gate (override, no free slot)');
     return res.json({
       ok: false,
       message: 'Barrier opened by override, but there is no free slot (count stays 0).',
       gate,
       gateInputs,
+      fsm,
       status: buildStatus(),
     });
   }
 
-  // Case 3: normal entry -> park the car in the first free slot (count - 1).
+  // Case 3: normal entry. 3. The DEC pulse clocks the counter DOWN.
+  const counter = logic.counterStep(freeCount, 'DOWN', CAPACITY);
   const slot = db.firstFreeSlot();
   db.setSlot(slot.id, 1);
-  db.addHistory('ENTRY', slot.id, freeCount - 1, 'Entry gate');
+  db.addHistory('ENTRY', slot.id, counter.next, 'Entry gate');
 
   res.json({
     ok: true,
@@ -113,34 +124,28 @@ app.post('/api/enter', (req, res) => {
     slot: slot.id,
     gate,
     gateInputs,
+    fsm,
+    counter,
     status: buildStatus(),
   });
 });
 
 // ----------------------------- POST /api/exit --------------------------------
-// A car leaves: one occupied slot becomes free (count + 1).
+// A car leaves: the exit sensor pulse clocks the counter UP by one.
+// The counter's enable (EN = U·EMPTY') stops it from going above CAPACITY.
 app.post('/api/exit', (req, res) => {
   const freeCount = db.countFreeSlots();
+  const counter = logic.counterStep(freeCount, 'UP', CAPACITY);
 
-  // The count must never go above CAPACITY.
-  if (freeCount >= CAPACITY) {
-    return res.json({
-      ok: false,
-      message: 'Garage is already EMPTY - no car to exit.',
-      status: buildStatus(),
-    });
+  if (!counter.EN) {
+    return res.json({ ok: false, message: 'Garage is already EMPTY - no car to exit.', counter, status: buildStatus() });
   }
 
   const slot = db.lastOccupiedSlot();
   db.setSlot(slot.id, 0);
-  db.addHistory('EXIT', slot.id, freeCount + 1, 'Exit gate');
+  db.addHistory('EXIT', slot.id, counter.next, 'Exit gate');
 
-  res.json({
-    ok: true,
-    message: `Car exited from slot ${slot.id}.`,
-    slot: slot.id,
-    status: buildStatus(),
-  });
+  res.json({ ok: true, message: `Car exited from slot ${slot.id}.`, slot: slot.id, counter, status: buildStatus() });
 });
 
 // ----------------------------- POST /api/slot/:id ----------------------------
@@ -195,6 +200,58 @@ app.get('/api/history', (req, res) => {
 // ----------------------------- extra routes ----------------------------------
 app.get('/api/truth-table', (req, res) => {
   res.json(logic.truthTable());
+});
+
+// ----------------------------- Hardware Design page --------------------------
+
+// K-maps, minimized equations, counter state table and FSM states.
+app.get('/api/design', (req, res) => {
+  res.json(logic.designInfo(CAPACITY));
+});
+
+// One clock tick of the entry FSM. Body: { state, V, A, S }
+app.post('/api/fsm/step', (req, res) => {
+  const { state = 'IDLE' } = req.body || {};
+  if (!logic.FSM_STATES[state]) {
+    return res.status(400).json({ ok: false, message: `Unknown state ${state}.` });
+  }
+  const V = parseBit(req.body.V) ?? 0;
+  const A = parseBit(req.body.A) ?? 1;
+  const S = parseBit(req.body.S) ?? 0;
+  res.json({ ok: true, ...logic.entryFsm(state, { V, A, S }), inputs: { V, A, S } });
+});
+
+// Simulates one push-button press that bounces, and debounces it.
+app.get('/api/debounce-demo', (req, res) => {
+  const random = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
+  const raw = [];
+  const push = (value, times) => {
+    for (let i = 0; i < times; i++) raw.push(value);
+  };
+  const bounce = (times) => {
+    for (let i = 0; i < times; i++) push(i % 2, random(1, 2));
+  };
+  push(0, 4); //           button not pressed
+  bounce(random(4, 7)); // contacts bounce when pressed
+  push(1, random(12, 16)); // held down
+  bounce(random(4, 6)); // contacts bounce when released
+  push(0, 8); //           released
+  const stableCount = 4;
+  const { clean, pulse } = logic.debounce(raw, stableCount);
+  const risingEdges = raw.filter((v, i) => v === 1 && raw[i - 1] === 0).length;
+  res.json({ raw, clean, pulse, stableCount, risingEdges, pulses: pulse.filter(Boolean).length });
+});
+
+// The Verilog source files from the /hardware folder.
+const HARDWARE_DIR = path.join(__dirname, '..', 'hardware');
+app.get('/api/verilog', (req, res) => {
+  if (!fs.existsSync(HARDWARE_DIR)) return res.json([]);
+  const files = fs
+    .readdirSync(HARDWARE_DIR)
+    .filter((name) => /\.(v|xdc)$/.test(name))
+    .sort()
+    .map((name) => ({ name, code: fs.readFileSync(path.join(HARDWARE_DIR, name), 'utf8') }));
+  res.json(files);
 });
 
 app.post('/api/reset', (req, res) => {

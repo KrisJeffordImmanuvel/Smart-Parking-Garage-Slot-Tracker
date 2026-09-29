@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [carPhase, setCarPhase] = useState('hidden'); // car position in the gate animation
   const [gateSnapshot, setGateSnapshot] = useState(null); // gate outputs while a car is at the gate
   const [shake, setShake] = useState(false); //          car shakes when refused
+  const [fsmTrace, setFsmTrace] = useState(null); //      states the entry FSM went through
 
   if (!status) {
     return <p className="text-slate-400">{error || 'Loading garage status...'}</p>;
@@ -44,8 +45,9 @@ export default function Dashboard() {
       // Send the request and let the car drive to the gate at the same time.
       const [result] = await Promise.all([api.enter(), wait(1100)]);
 
-      // Show what the gate logic decided with V = 1.
+      // Show what the gate logic decided with V = 1, and the entry FSM path.
       setGateSnapshot({ gate: result.gate, inputs: result.gateInputs });
+      setFsmTrace(result.fsm?.trace || null);
       setStatus(result.status);
       setMessage({ text: result.message, type: result.ok ? 'ok' : 'warn' });
       await wait(800); // time for the barrier arm to move
@@ -113,6 +115,12 @@ export default function Dashboard() {
               <span className="font-semibold text-slate-100">{status.freeCount}</span> free ·{' '}
               <span className="font-semibold text-slate-100">{status.occupiedCount}</span> occupied
             </p>
+            <p className="font-mono text-xs text-slate-400" title="5-bit up/down counter (see Hardware → CO3)">
+              Counter Q4..Q0 ={' '}
+              <span className="text-emerald-300">
+                {['Q4', 'Q3', 'Q2', 'Q1', 'Q0'].map((q) => status.counter.bits[q]).join('')}
+              </span>
+            </p>
             <div className="flex gap-10">
               <IndicatorLight label="FULL" on={status.FULL === 1} color="red" size="h-8 w-8" blink />
               <IndicatorLight label="EMPTY" on={status.EMPTY === 1} color="green" size="h-8 w-8" />
@@ -158,6 +166,27 @@ export default function Dashboard() {
 
           {message && (
             <p className={`mt-4 rounded-xl border px-4 py-2 text-sm ${messageColors[message.type]}`}>{message.text}</p>
+          )}
+
+          {/* Path of the entry FSM for the last car (see Hardware → CO5) */}
+          {fsmTrace && (
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 font-mono text-xs">
+              <span className="text-slate-400">Entry FSM:</span>
+              {fsmTrace.map((step, i) => (
+                <span key={i} className="flex items-center gap-1.5">
+                  {i > 0 && <span className="text-slate-600">→</span>}
+                  <span
+                    className={
+                      'rounded-md border px-1.5 py-0.5 ' +
+                      (step.DEC ? 'border-amber-500 bg-amber-500/20 text-amber-200' : 'border-slate-700 text-slate-300')
+                    }
+                  >
+                    {step.state}
+                    {step.DEC ? ' · DEC' : ''}
+                  </span>
+                </span>
+              ))}
+            </div>
           )}
         </Card>
       </div>

@@ -39,3 +39,67 @@ test('BCD conversion and 7-segment decoder', () => {
   assert.deepStrictEqual(logic.bcdTo7Segment(1), { a: 0, b: 1, c: 1, d: 0, e: 0, f: 0, g: 0 });
   assert.deepStrictEqual(logic.bcdTo7Segment(12), { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, g: 0 }); // invalid -> blank
 });
+
+// ------------------------- CO1: minimized logic ------------------------------
+
+test('minimized decoder equations match the truth table for every BCD digit', () => {
+  const names = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+  for (let digit = 0; digit <= 9; digit++) {
+    const segments = logic.bcdTo7Segment(digit);
+    names.forEach((name, i) => {
+      assert.strictEqual(segments[name], logic.SEGMENT_TRUTH_TABLE[digit][i], `segment ${name} of ${digit}`);
+      // The equation strings shown on the Hardware page must agree as well.
+      const vars = { A: (digit >> 3) & 1, B: (digit >> 2) & 1, C: (digit >> 1) & 1, D: digit & 1 };
+      const fromString = logic.DECODER_EQUATIONS[name].split('+').some((t) => logic.evalTerm(t.trim(), vars));
+      assert.strictEqual(fromString ? 1 : 0, segments[name], `equation string for ${name} at ${digit}`);
+    });
+  }
+});
+
+test('minimized comparator (FULL = Q4\'Q3\'Q2\'Q1\'Q0\', EMPTY = Q4Q2) is correct for 0..20', () => {
+  for (let count = 0; count <= 20; count++) {
+    const { FULL, EMPTY, A } = logic.comparator(count, 20);
+    assert.strictEqual(FULL, count === 0 ? 1 : 0, `FULL at ${count}`);
+    assert.strictEqual(EMPTY, count === 20 ? 1 : 0, `EMPTY at ${count}`);
+    assert.strictEqual(A, 1 - FULL);
+  }
+});
+
+// ------------------------- CO3: up/down counter ------------------------------
+
+test('T flip-flop counter counts down/up by one and stops at 0 and 20', () => {
+  for (let count = 0; count <= 20; count++) {
+    const down = logic.counterStep(count, 'DOWN');
+    const up = logic.counterStep(count, 'UP');
+    assert.strictEqual(down.next, count === 0 ? 0 : count - 1, `DOWN from ${count}`);
+    assert.strictEqual(up.next, count === 20 ? 20 : count + 1, `UP from ${count}`);
+    assert.strictEqual(down.EN, count === 0 ? 0 : 1);
+    assert.strictEqual(up.EN, count === 20 ? 0 : 1);
+  }
+  // 8 = 01000 counting down toggles Q3..Q0 -> 00111 = 7
+  assert.deepStrictEqual(logic.counterStep(8, 'DOWN').T, { T4: 0, T3: 1, T2: 1, T1: 1, T0: 1 });
+});
+
+// ------------------------- CO5: FSM and debouncer ----------------------------
+
+test('entry FSM gives exactly one DEC pulse per car, none when the garage is full', () => {
+  const allowed = logic.runEntrySequence(1);
+  assert.strictEqual(allowed.DEC, 1);
+  assert.deepStrictEqual(allowed.trace.map((s) => s.state), ['IDLE', 'ARMED', 'UNDER', 'COUNT', 'IDLE']);
+  assert.strictEqual(allowed.trace.filter((s) => s.DEC).length, 1);
+
+  const full = logic.runEntrySequence(0);
+  assert.strictEqual(full.DEC, 0);
+  assert.ok(full.trace.every((s) => s.state === 'IDLE'));
+
+  // A car that arrives and then reverses away is not counted.
+  assert.strictEqual(logic.entryFsm('ARMED', { V: 0, A: 1, S: 0 }).next, 'IDLE');
+});
+
+test('debouncer turns a bouncing press into one clean pulse', () => {
+  const raw = [0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0];
+  const { clean, pulse } = logic.debounce(raw, 4);
+  assert.strictEqual(pulse.reduce((a, b) => a + b, 0), 1); // one press -> one pulse
+  assert.strictEqual(clean[raw.length - 1], 0); //            released at the end
+  assert.ok(clean.includes(1));
+});
