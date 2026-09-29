@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 const links = [
   { to: '/', label: 'Dashboard' },
   { to: '/logic', label: 'Logic Panel' },
+  { to: '/hardware', label: 'Hardware' },
   { to: '/history', label: 'History' },
 ];
 
