@@ -1,0 +1,18 @@
+{
+  "name": "parking-server",
+  "version": "1.0.0",
+  "description": "Express + SQLite API for the Smart Parking Garage Slot Tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "dev": "node --watch --disable-warning=ExperimentalWarning server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
+  }
+}
