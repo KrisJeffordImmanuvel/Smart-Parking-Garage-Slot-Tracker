@@ -212,9 +212,22 @@ app.use('/api', (req, res) => {
 // so the whole project can run on a single port with "npm start".
 // -----------------------------------------------------------------------------
 const clientDist = path.join(__dirname, '..', 'client', 'dist');
-if (fs.existsSync(clientDist)) {
+const hasBuiltClient = fs.existsSync(clientDist);
+if (hasBuiltClient) {
   app.use(express.static(clientDist));
   app.get(/^(?!\/api).*/, (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+} else {
+  // In development the website is served by Vite on port 5173, not here.
+  // Show a short help page instead of "Cannot GET /".
+  app.get('/', (req, res) => {
+    res.send(`
+      <body style="font-family: system-ui, sans-serif; background: #020617; color: #e2e8f0; padding: 40px;">
+        <h1>Smart Parking API is running ✅</h1>
+        <p>This port (${PORT}) is only the backend. Open the website here:</p>
+        <p style="font-size: 1.4em;"><a style="color: #34d399;" href="http://localhost:5173">http://localhost:5173</a></p>
+        <p>Test the API: <a style="color: #38bdf8;" href="/api/status">/api/status</a></p>
+      </body>`);
+  });
 }
 
 // Any unexpected error -> 500 in JSON (instead of crashing the server).
@@ -225,4 +238,9 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Parking API running at http://localhost:${PORT}  (capacity ${CAPACITY} slots)`);
+  if (hasBuiltClient) {
+    console.log(`Open the website at http://localhost:${PORT}`);
+  } else {
+    console.log('Open the website at http://localhost:5173 (served by the client dev server)');
+  }
 });
