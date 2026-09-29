@@ -34,6 +34,30 @@ highlighted.
 
 ![Logic Panel with inputs, outputs, Boolean equations, decoder and truth table](docs/screenshots/logic-panel.png)
 
+### Hardware Design (CO1, CO3, CO5)
+
+**CO1: minimized comparator.** 5-variable K-maps for FULL and EMPTY. The X cells (counts 21–31
+never happen) let EMPTY shrink to a single AND gate, `Q4·Q2`.
+
+![CO1 comparator K-maps for FULL and EMPTY](docs/screenshots/hardware-co1-comparator.png)
+
+**CO1: minimized BCD-to-7-segment decoder.** Pick a segment, then click a product term to see its group.
+
+![CO1 decoder K-map, equations and truth table](docs/screenshots/hardware-co1-decoder.png)
+
+**CO3: synchronous up/down counter.** Live T flip-flops. The ringed ones had T = 1 and toggled on
+the last clock, and the right-hand side previews the next clock in both directions.
+
+![CO3 up/down counter flip-flops and next-state preview](docs/screenshots/hardware-co3-counter.png)
+
+**CO5: Verilog FSM, debouncing and display multiplexing.**
+
+![CO5 entry FSM state diagram and simulator](docs/screenshots/hardware-co5-fsm.png)
+
+![CO5 debounce timing diagram](docs/screenshots/hardware-co5-debounce.png)
+
+![CO5 display multiplexing demo](docs/screenshots/hardware-co5-mux.png)
+
 ### History
 
 ![History page with entry, exit and denied counts and the event log](docs/screenshots/history.png)
@@ -41,6 +65,20 @@ highlighted.
 ### On a phone
 
 <img src="docs/screenshots/mobile.png" alt="Dashboard on a phone-sized screen" width="300">
+
+---
+
+## Course outcomes covered
+
+| CO | Where in the web app | Where in the code |
+| --- | --- | --- |
+| **CO1**: minimized combinational logic for FULL/EMPTY detection and the BCD-to-7-segment decoder | Hardware → CO1 (K-maps with don't cares, live values) | `server/logic.js` (`comparator`, `bcdTo7Segment`), `hardware/comparator.v`, `hardware/bcd_to_7seg.v` |
+| **CO3**: synchronous up/down counter that tracks the number of free slots | Hardware → CO3 (live flip-flops, T equations, state table); every Car Enters / Exits clocks it | `server/logic.js` (`counterStep`), `hardware/updown_counter.v` |
+| **CO5**: Verilog implementation with an FSM, debouncing and display multiplexing | Hardware → CO5 (FSM simulator, debounce waveform, multiplexing demo, Verilog source) | `hardware/*.v`, `server/logic.js` (`entryFsm`, `debounce`) |
+
+The JavaScript in `server/logic.js` and the Verilog in `hardware/` implement the **same equations**.
+Both are tested: `npm test` runs 9 JavaScript tests, and the Verilog testbench runs 177 checks
+(see [`hardware/README.md`](hardware/README.md)).
 
 ---
 
@@ -52,7 +90,12 @@ highlighted.
 - **Logic Panel**: live values of V, A, E, S and UP, GREEN, RED, FULL, the equation
   `UP = S + E + V·A` with the live values filled in, the comparator and BCD decoder
   outputs, and a 16-row truth table with the current row highlighted.
+- **Hardware Design**: one tab per course outcome:
+  - K-maps for the minimized comparator and decoder;
+  - the T flip-flop up/down counter;
+  - a clickable FSM simulator, a debounce timing diagram, a display-multiplexing demo, and the Verilog source.
 - **History**: every entry, exit and refused car with its date and time, stored in SQLite.
+- **Verilog (`hardware/`)**: the whole design as FPGA modules, with a self-checking testbench and Basys 3 pins.
 
 ---
 
@@ -63,9 +106,10 @@ Smart-Parking-Garage-Slot-Tracker/
 ├── package.json            # helper scripts to run everything from the root
 ├── check-install.js        # checks Node version + installed packages before "npm run dev"
 ├── docs/screenshots/       # the screenshots shown in this README
+├── hardware/               # VERILOG (CO5): FSM, debounce, counter, comparator, decoder, mux, testbench
 ├── server/                 # BACKEND
 │   ├── config.js           # CAPACITY = 20, port, database path
-│   ├── logic.js            # gate equations, comparator, BCD-to-7-segment decoder
+│   ├── logic.js            # gate logic, comparator, decoder, counter, FSM, debounce
 │   ├── db.js               # SQLite tables + queries
 │   ├── server.js           # Express REST API
 │   ├── test/logic.test.js  # unit tests for logic.js
@@ -78,7 +122,8 @@ Smart-Parking-Garage-Slot-Tracker/
         ├── api.js                  # all fetch() calls to the backend
         ├── hooks/useParkingStatus.js  # loads /api/status every 2 s
         ├── components/             # NavBar, SevenSegment, Barrier, SlotGrid, ...
-        └── pages/                  # Dashboard, LogicPanel, History
+        │   └── hardware/           # K-map, counter, FSM, debounce and mux views
+        └── pages/                  # Dashboard, LogicPanel, Hardware, History
 ```
 
 ---
@@ -159,6 +204,10 @@ npm start        # after a build: serve app + API together on http://localhost:4
 To start again with an empty garage, click **Reset** on the Dashboard, or stop the
 server and delete the `server/data` folder.
 
+To simulate the Verilog design (needs [Icarus Verilog](https://bleyer.org/icarus/)),
+follow [`hardware/README.md`](hardware/README.md). It also covers running the design on a
+Basys 3 FPGA with Vivado.
+
 ---
 
 ## 4. REST API
@@ -175,6 +224,10 @@ Base URL: `http://localhost:4000`
 | GET    | `/api/history`     | List of entry/exit events with time (newest first)                   |
 | GET    | `/api/truth-table` | Extra: the 16-row truth table generated by `logic.js`                |
 | POST   | `/api/reset`       | Extra: free all slots, switches off, clear history                   |
+| GET    | `/api/design`      | K-maps, minimized equations, counter state table, FSM states         |
+| POST   | `/api/fsm/step`    | One clock of the entry FSM, body `{ "state": "IDLE", "V": 1, "A": 1, "S": 0 }` |
+| GET    | `/api/debounce-demo` | A simulated bouncing button press and its debounced output        |
+| GET    | `/api/verilog`     | The Verilog files from `hardware/`                                   |
 
 Try it from a terminal:
 
@@ -255,11 +308,14 @@ const FULL = V && !A && !E && !S;
 
 Row number = V·8 + A·4 + E·2 + S (the inputs read as a 4-bit binary number).
 
-### Comparator
+### Comparator (CO1, minimized)
 
-- `FULL = 1` when count = 0
-- `EMPTY = 1` when count = 20
-- `A = FULL'` (a slot is available whenever the garage is not full)
+The free count lives in a 5-bit counter `Q4 Q3 Q2 Q1 Q0`:
+
+- `FULL  = Q4'·Q3'·Q2'·Q1'·Q0'`: 1 only when the count is 0 (a 5-input NOR gate).
+- `EMPTY = Q4·Q2`: 1 when the count is 20 (`10100`). Counts 21–31 never happen, so they are
+  **don't cares**. Among 0–20, only 20 has both Q4 = 1 and Q2 = 1.
+- `A = FULL'` (a slot is available whenever the garage is not full).
 
 The comparator's FULL is the **garage full** lamp. The gate's FULL output is different:
 it is 1 only when a car is actually **waiting** and gets turned away.
@@ -267,9 +323,43 @@ it is 1 only when a car is actually **waiting** and gets turned away.
 ### BCD-to-7-segment decoder
 
 The free count (0–20) is split into two BCD digits, e.g. `17` gives tens `0001` and
-ones `0111`. Each digit goes through a lookup table (the decoder's truth table, like
-the 7447/7448 IC) that outputs the segments `a b c d e f g`. The frontend only draws
-the segments that the decoder turned on.
+ones `0111`. Each digit `A B C D` goes through minimized equations, using codes 10–15
+as don't cares:
+
+```
+a = A + C + BD + B'D'          e = B'D' + CD'
+b = B' + C'D' + CD             f = A + C'D' + BC' + BD'
+c = B + C' + D                 g = A + B'C + BC' + CD'
+d = A + B'D' + B'C + CD' + BC'D
+```
+
+A unit test checks these equations against the decoder's truth table for every digit.
+The frontend only draws the segments that the decoder turned on.
+
+### Up/down counter (CO3)
+
+Five T flip-flops share one clock (synchronous). `U = 1` counts up (a car exits) and
+`U = 0` counts down (a car enters). A T flip-flop toggles when `T = 1`: `Q(next) = Q ⊕ T`.
+
+```
+EN = U·EMPTY' + U'·FULL'                 (stop at 20 going up, at 0 going down)
+T0 = EN
+T1 = EN·(U·Q0 + U'·Q0')
+T2 = EN·(U·Q0·Q1 + U'·Q0'·Q1')
+T3 = EN·(U·Q0·Q1·Q2 + U'·Q0'·Q1'·Q2')
+T4 = EN·(U·Q0·Q1·Q2·Q3 + U'·Q0'·Q1'·Q2'·Q3')
+```
+
+### Entry FSM, debouncing and multiplexing (CO5)
+
+- **Entry FSM (Moore):** `IDLE (00) → ARMED (01) → UNDER (10) → COUNT (11) → IDLE`. It moves to
+  ARMED only when `V·A = 1`, to UNDER when `S = 1`, and to COUNT when `S = 0`. COUNT outputs one
+  `DEC` pulse, which clocks the counter down. A car that reverses away, or arrives when the garage
+  is full, is never counted.
+- **Debouncing:** a 2-flip-flop synchronizer, then a counter. The output only changes after the
+  input has been stable for N clocks. A one-pulse circuit then gives one clock-wide pulse per press.
+- **Display multiplexing:** both digits share one decoder and the same 7 segment wires. A
+  select signal switches between the tens and ones digit hundreds of times per second.
 
 ---
 
@@ -290,12 +380,16 @@ the segments that the decoder turned on.
 
 1. The car drives up to the barrier, which means **V = 1**.
 2. The server works out `A` from the free count and evaluates `UP = S + E + V·A`.
-3. If **UP = 1** and a slot is free, the car parks in the first free slot, the count
-   goes down by 1, and an **ENTRY** is logged. The barrier rises and the car drives in.
-4. If **UP = 0** (garage full, no override), the gate's **FULL = 1**, the barrier stays
+3. The **entry FSM** runs through the sensor sequence (V → S → passed). If `A = 1`, it
+   goes `IDLE → ARMED → UNDER → COUNT` and produces one **DEC** pulse.
+4. The DEC pulse clocks the **up/down counter DOWN** by one. The car parks in the first
+   free slot, and an **ENTRY** is logged. The barrier rises and the car drives in.
+5. If **UP = 0** (garage full, no override), the gate's **FULL = 1**, the barrier stays
    down, the car turns back, and a **DENIED** event is logged.
-5. If E or S force the barrier up but no slot is free, the count stays at 0 (it can
-   never go below 0), and the event is logged as **DENIED**.
+6. If E or S force the barrier up but no slot is free, the FSM never arms (A = 0), so
+   there is no DEC pulse and the count stays at 0. The event is logged as **DENIED**.
+
+**Car Exits** clocks the counter **UP**. Its enable `EN = U·EMPTY'` stops it at 20.
 
 ---
 

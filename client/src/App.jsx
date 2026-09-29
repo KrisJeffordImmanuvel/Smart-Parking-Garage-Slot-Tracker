@@ -4,6 +4,7 @@ import NavBar from './components/NavBar.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import LogicPanel from './pages/LogicPanel.jsx';
 import History from './pages/History.jsx';
+import Hardware from './pages/Hardware.jsx';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/logic" element={<LogicPanel />} />
+          <Route path="/hardware" element={<Hardware />} />
           <Route path="/history" element={<History />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
