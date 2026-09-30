@@ -49,10 +49,10 @@ function FsmDiagram({ state, lastEdge, states }) {
     <svg viewBox="0 0 470 300" className="w-full max-w-xl">
       <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8" />
+          <path d="M0 0 L10 5 L0 10 z" fill="#8f9497" />
         </marker>
         <marker id="arrow-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-          <path d="M0 0 L10 5 L0 10 z" fill="#fbbf24" />
+          <path d="M0 0 L10 5 L0 10 z" fill="#004643" />
         </marker>
       </defs>
 
@@ -63,7 +63,7 @@ function FsmDiagram({ state, lastEdge, states }) {
             <path
               d={edge.d}
               fill="none"
-              stroke={hot ? '#fbbf24' : '#64748b'}
+              stroke={hot ? '#004643' : '#8f9497'}
               strokeWidth={hot ? 3 : 1.6}
               markerEnd={`url(#${hot ? 'arrow-hot' : 'arrow'})`}
             />
@@ -72,7 +72,8 @@ function FsmDiagram({ state, lastEdge, states }) {
               y={edge.at[1]}
               fontSize="13"
               fontFamily="monospace"
-              fill={hot ? '#fbbf24' : '#cbd5e1'}
+              fill={hot ? '#004643' : '#5f6468'}
+              fontWeight={hot ? 'bold' : 'normal'}
               textAnchor={edge.key === 'COUNT>IDLE' ? 'end' : 'start'}
             >
               <SvgLabel text={edge.label} />
@@ -89,14 +90,14 @@ function FsmDiagram({ state, lastEdge, states }) {
               cx={x}
               cy={y}
               r="38"
-              fill={active ? 'rgba(16,185,129,0.25)' : '#0f172a'}
-              stroke={active ? '#34d399' : '#475569'}
+              fill={active ? '#cfdc66' : '#fbfaf6'} // present state = Lemon Chartreuse
+              stroke={active ? '#004643' : '#dcd7cb'}
               strokeWidth={active ? 3 : 1.5}
             />
-            <text x={x} y={y - 4} textAnchor="middle" fontSize="14" fontWeight="bold" fill={active ? '#6ee7b7' : '#e2e8f0'}>
+            <text x={x} y={y - 4} textAnchor="middle" fontSize="14" fontWeight="bold" fill="#272b2e">
               {name}
             </text>
-            <text x={x} y={y + 13} textAnchor="middle" fontSize="11" fontFamily="monospace" fill="#94a3b8">
+            <text x={x} y={y + 13} textAnchor="middle" fontSize="11" fontFamily="monospace" fill="#5f6468">
               {states[name].code} · DEC={name === 'COUNT' ? 1 : 0}
             </text>
           </g>
@@ -144,10 +145,10 @@ export default function FsmCard({ states, liveA }) {
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         <div>
           <FsmDiagram state={state} lastEdge={lastEdge} states={states} />
-          <p className="mt-2 text-sm text-slate-400">
-            Present state: <b className="text-emerald-300">{state}</b> ({states[state].code}): {states[state].meaning}.
+          <p className="mt-2 text-sm text-muted">
+            Present state: <b className="text-cyprus">{state}</b> ({states[state].code}): {states[state].meaning}.
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted">
             Try: V=1 → Clock, S=1 → Clock, V=0 and S=0 → Clock, Clock. With A=0 (garage full) the FSM never leaves IDLE.
           </p>
         </div>
@@ -157,20 +158,20 @@ export default function FsmCard({ states, liveA }) {
           <ToggleSwitch label="S: under barrier" checked={inputs.S === 1} onChange={(v) => setInput('S', v)} />
           <ToggleSwitch label="A: slot available" checked={inputs.A === 1} onChange={(v) => setInput('A', v)} />
           <div className="grid grid-cols-[1fr_auto] gap-2 pt-1">
-            <button onClick={clock} className="rounded-xl bg-emerald-500 py-2.5 font-semibold text-slate-950 hover:bg-emerald-400">
+            <button onClick={clock} className="rounded-xl bg-lime py-2.5 font-semibold text-charcoal hover:bg-lime/85">
               ⏱ Clock
             </button>
-            <button onClick={reset} className="rounded-xl border border-slate-700 px-3 text-slate-300 hover:bg-slate-800">
+            <button onClick={reset} className="rounded-xl border border-line px-3 text-charcoal/80 hover:bg-charcoal/10">
               Reset
             </button>
           </div>
-          <p className="rounded-lg bg-slate-950/60 p-2 text-sm">
-            DEC pulses (cars counted): <b className="text-amber-300">{cars}</b>
+          <p className="rounded-lg bg-beige p-2 text-sm">
+            DEC pulses (cars counted): <b className="text-olive">{cars}</b>
           </p>
-          {error && <p className="text-sm text-red-300">{error}</p>}
+          {error && <p className="text-sm text-alert">{error}</p>}
           <div className="max-h-44 overflow-y-auto font-mono text-xs">
             {log.map((entry, i) => (
-              <p key={i} className={entry.DEC ? 'text-amber-300' : 'text-slate-400'}>
+              <p key={i} className={entry.DEC ? 'text-olive' : 'text-muted'}>
                 V{entry.V} S{entry.S} A{entry.A}: {entry.from} → {entry.to}
                 {entry.DEC ? '  DEC=1' : ''}
               </p>

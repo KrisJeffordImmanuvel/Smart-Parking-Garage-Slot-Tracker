@@ -22,7 +22,7 @@ const SEGMENT_SHAPES = {
   g: '12,46 48,46 52,50 48,54 12,54 8,50',
 };
 
-// `highlight` (optional) draws one segment in amber, e.g. to show which
+// `highlight` (optional) draws one segment in Sand, e.g. to show which
 // segment a K-map is about.
 export function Digit({ segments, className = 'h-24 w-14', highlight = null }) {
   return (
@@ -30,13 +30,14 @@ export function Digit({ segments, className = 'h-24 w-14', highlight = null }) {
       <g transform="skewX(-6) translate(6 0)">
         {Object.entries(SEGMENT_SHAPES).map(([name, points]) => {
           const on = segments?.[name] === 1;
-          const fill = name === highlight ? '#fbbf24' : on ? '#ef4444' : '#3b1414';
+          // lit = Lemon Chartreuse, unlit = a faint shade on the Charcoal panel, highlight = Sand
+          const fill = name === highlight ? '#f0ede5' : on ? '#cfdc66' : '#393f36';
           return (
             <polygon
               key={name}
               points={points}
               fill={fill}
-              style={on ? { filter: 'drop-shadow(0 0 4px rgba(239,68,68,0.9))' } : undefined}
+              style={on ? { filter: 'drop-shadow(0 0 4px rgba(207,220,102,0.85))' } : undefined}
             />
           );
         })}
@@ -48,7 +49,7 @@ export function Digit({ segments, className = 'h-24 w-14', highlight = null }) {
 // Two digits side by side (tens and ones) inside a dark display panel.
 export default function SevenSegmentDisplay({ display, size = 'h-24 w-14' }) {
   return (
-    <div className="inline-flex gap-2 rounded-xl border border-slate-700 bg-black px-4 py-3 shadow-inner">
+    <div className="inline-flex gap-2 rounded-xl border border-charcoal bg-charcoal px-4 py-3 shadow-inner">
       <Digit segments={display?.tens.segments} className={size} />
       <Digit segments={display?.ones.segments} className={size} />
     </div>

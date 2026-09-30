@@ -34,8 +34,8 @@ export default function Hardware() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Hardware Design</h1>
-        <p className="text-slate-400">The digital circuits behind the garage, one tab per course outcome.</p>
+        <h1 className="text-2xl font-bold text-cyprus sm:text-3xl">Hardware Design</h1>
+        <p className="text-muted">The digital circuits behind the garage, one tab per course outcome.</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -46,22 +46,22 @@ export default function Hardware() {
             className={
               'rounded-xl border px-4 py-2 text-sm font-semibold transition ' +
               (t.id === tab.id
-                ? 'border-emerald-400 bg-emerald-500 text-slate-950'
-                : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500')
+                ? 'border-cyprus bg-lime text-charcoal'
+                : 'border-line bg-beige text-charcoal/80 hover:border-cyprus/40')
             }
           >
             {t.label}
           </button>
         ))}
       </div>
-      <p className="rounded-xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-sm text-slate-300">
-        <b className="text-emerald-300">CO{tab.id}:</b> {tab.text}
+      <p className="rounded-xl border border-line bg-paper px-4 py-3 text-sm text-charcoal/80">
+        <b className="text-cyprus">CO{tab.id}:</b> {tab.text}
       </p>
 
-      {error && <p className="rounded-xl border border-red-800 bg-red-950/60 p-3 text-red-200">{error}</p>}
+      {error && <p className="rounded-xl border border-alert/30 bg-alert/10 p-3 text-alert">{error}</p>}
 
       {!status || !design ? (
-        <p className="text-slate-400">Loading design…</p>
+        <p className="text-muted">Loading design…</p>
       ) : tab.id === '1' ? (
         <CombinationalTab design={design} status={status} />
       ) : tab.id === '3' ? (

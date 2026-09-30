@@ -19,7 +19,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <footer className="px-4 pb-6 text-center text-xs text-slate-500">
+      <footer className="px-4 pb-6 text-center text-xs text-muted">
         Smart Parking Garage Slot Tracker · Digital Systems Design Microproject
       </footer>
     </div>

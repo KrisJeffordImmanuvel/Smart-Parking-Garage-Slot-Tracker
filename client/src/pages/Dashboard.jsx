@@ -27,7 +27,7 @@ export default function Dashboard() {
   const [fsmTrace, setFsmTrace] = useState(null); //      states the entry FSM went through
 
   if (!status) {
-    return <p className="text-slate-400">{error || 'Loading garage status...'}</p>;
+    return <p className="text-muted">{error || 'Loading garage status...'}</p>;
   }
 
   // While a car is at the gate we show the gate outputs calculated with V = 1
@@ -92,38 +92,38 @@ export default function Dashboard() {
   };
 
   const messageColors = {
-    ok: 'border-emerald-700 bg-emerald-950/60 text-emerald-200',
-    warn: 'border-amber-700 bg-amber-950/60 text-amber-200',
-    error: 'border-red-700 bg-red-950/60 text-red-200',
+    ok: 'border-cyprus/30 bg-cyprus/5 text-cyprus',
+    warn: 'border-alert/30 bg-alert/10 text-alert',
+    error: 'border-alert/30 bg-alert/10 text-alert',
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Dashboard</h1>
-        <p className="text-slate-400">Live view of the garage, the entry gate and all {status.capacity} slots.</p>
+        <h1 className="text-2xl font-bold text-cyprus sm:text-3xl">Dashboard</h1>
+        <p className="text-muted">Live view of the garage, the entry gate and all {status.capacity} slots.</p>
       </div>
 
-      {error && <p className="rounded-xl border border-red-800 bg-red-950/60 p-3 text-red-200">{error}</p>}
+      {error && <p className="rounded-xl border border-alert/30 bg-alert/10 p-3 text-alert">{error}</p>}
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* ---------- Free-slot counter ---------- */}
         <Card title="Free Slots" subtitle="BCD → 7-segment display">
           <div className="flex flex-col items-center gap-5">
             <SevenSegmentDisplay display={status.display} />
-            <p className="text-sm text-slate-400">
-              <span className="font-semibold text-slate-100">{status.freeCount}</span> free ·{' '}
-              <span className="font-semibold text-slate-100">{status.occupiedCount}</span> occupied
+            <p className="text-sm text-muted">
+              <span className="font-semibold text-charcoal">{status.freeCount}</span> free ·{' '}
+              <span className="font-semibold text-charcoal">{status.occupiedCount}</span> occupied
             </p>
-            <p className="font-mono text-xs text-slate-400" title="5-bit up/down counter (see Hardware → CO3)">
+            <p className="font-mono text-xs text-muted" title="5-bit up/down counter (see Hardware → CO3)">
               Counter Q4..Q0 ={' '}
-              <span className="text-emerald-300">
+              <span className="text-cyprus">
                 {['Q4', 'Q3', 'Q2', 'Q1', 'Q0'].map((q) => status.counter.bits[q]).join('')}
               </span>
             </p>
             <div className="flex gap-10">
-              <IndicatorLight label="FULL" on={status.FULL === 1} color="red" size="h-8 w-8" blink />
-              <IndicatorLight label="EMPTY" on={status.EMPTY === 1} color="green" size="h-8 w-8" />
+              <IndicatorLight label="FULL" on={status.FULL === 1} color="alert" size="h-8 w-8" blink />
+              <IndicatorLight label="EMPTY" on={status.EMPTY === 1} color="lime" size="h-8 w-8" />
             </div>
           </div>
         </Card>
@@ -138,27 +138,27 @@ export default function Dashboard() {
 
           {/* Current inputs and outputs of the gate logic */}
           <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3 font-mono text-sm">
-            <span className="text-slate-400">
+            <span className="text-muted">
               V={inputs.V} A={inputs.A} E={inputs.E} S={inputs.S}
             </span>
-            <IndicatorLight label="UP" on={gate.UP === 1} color="sky" size="h-4 w-4" />
-            <IndicatorLight label="GREEN" on={gate.GREEN === 1} color="green" size="h-4 w-4" />
-            <IndicatorLight label="RED" on={gate.RED === 1} color="red" size="h-4 w-4" />
-            <IndicatorLight label="FULL" on={gate.FULL === 1} color="amber" size="h-4 w-4" blink />
+            <IndicatorLight label="UP" on={gate.UP === 1} color="cyprus" size="h-4 w-4" />
+            <IndicatorLight label="GREEN" on={gate.GREEN === 1} color="lime" size="h-4 w-4" />
+            <IndicatorLight label="RED" on={gate.RED === 1} color="alert" size="h-4 w-4" />
+            <IndicatorLight label="FULL" on={gate.FULL === 1} color="olive" size="h-4 w-4" blink />
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
             <button
               onClick={handleEnter}
               disabled={busy}
-              className="rounded-xl bg-emerald-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-50"
+              className="rounded-xl bg-lime px-4 py-3 font-semibold text-charcoal transition hover:bg-lime/85 disabled:opacity-50"
             >
               🚗 Car Enters
             </button>
             <button
               onClick={handleExit}
               disabled={busy}
-              className="rounded-xl bg-sky-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-sky-400 disabled:opacity-50"
+              className="rounded-xl bg-cyprus px-4 py-3 font-semibold text-sand transition hover:bg-cyprus/90 disabled:opacity-50"
             >
               Car Exits ➜
             </button>
@@ -171,14 +171,14 @@ export default function Dashboard() {
           {/* Path of the entry FSM for the last car (see Hardware → CO5) */}
           {fsmTrace && (
             <div className="mt-3 flex flex-wrap items-center gap-1.5 font-mono text-xs">
-              <span className="text-slate-400">Entry FSM:</span>
+              <span className="text-muted">Entry FSM:</span>
               {fsmTrace.map((step, i) => (
                 <span key={i} className="flex items-center gap-1.5">
-                  {i > 0 && <span className="text-slate-600">→</span>}
+                  {i > 0 && <span className="text-charcoal/35">→</span>}
                   <span
                     className={
                       'rounded-md border px-1.5 py-0.5 ' +
-                      (step.DEC ? 'border-amber-500 bg-amber-500/20 text-amber-200' : 'border-slate-700 text-slate-300')
+                      (step.DEC ? 'border-olive bg-lime/40 text-olive' : 'border-line text-charcoal/80')
                     }
                   >
                     {step.state}
@@ -216,17 +216,17 @@ export default function Dashboard() {
         title="Parking Slots"
         subtitle="Click a slot to toggle it (free ↔ occupied)"
         action={
-          <div className="flex items-center gap-4 text-xs text-slate-400">
+          <div className="flex items-center gap-4 text-xs text-muted">
             <span className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded bg-emerald-500" /> Free
+              <span className="h-3 w-3 rounded border-2 border-cyprus/40 bg-paper" /> Free
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded bg-red-500" /> Occupied
+              <span className="h-3 w-3 rounded bg-charcoal" /> Occupied
             </span>
             <button
               onClick={handleReset}
               disabled={busy}
-              className="rounded-lg border border-slate-700 px-3 py-1 text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+              className="rounded-lg border border-line px-3 py-1 text-charcoal/80 hover:bg-charcoal/10 disabled:opacity-50"
             >
               Reset
             </button>
