@@ -65,7 +65,7 @@ ringed). The right-hand side previews the next clock in both directions.
 ![CO3 up/down counter flip-flops and next-state preview](docs/screenshots/hardware-co3-counter.png)
 
 **CO5: entry FSM.** Set V, S and A, then press ⏱ Clock. Here the car is under the barrier (state
-UNDER), and the amber arrow is the transition just taken.
+UNDER, shown in chartreuse), and the Cyprus arrow is the transition just taken.
 
 ![CO5 entry FSM state diagram and simulator](docs/screenshots/hardware-co5-fsm.png)
 
@@ -111,7 +111,7 @@ Both are tested: `npm test` runs 9 JavaScript tests, and the Verilog testbench r
 
 ## 1. Features
 
-- **Dashboard**: 20 clickable slot boxes (green = free, red = occupied), a free-slot
+- **Dashboard**: 20 clickable slot boxes (light = free, dark = occupied), a free-slot
   count on a 2-digit 7-segment display, FULL/EMPTY lamps, an animated barrier with a
   traffic light, **Car Enters** / **Car Exits** buttons, and **E** / **S** toggle switches.
 - **Logic Panel**: live values of V, A, E, S and UP, GREEN, RED, FULL, the equation
@@ -123,6 +123,8 @@ Both are tested: `npm test` runs 9 JavaScript tests, and the Verilog testbench r
   - a clickable FSM simulator, a debounce timing diagram, a display-multiplexing demo, and the Verilog source.
 - **History**: every entry, exit and refused car with its date and time, stored in SQLite.
 - **Verilog (`hardware/`)**: the whole design as FPGA modules, with a self-checking testbench and Basys 3 pins.
+- **Colour theme**: Cyprus `#004643`, Sand `#F0EDE5`, Charcoal Black `#272B2E` and Lemon Chartreuse
+  `#CFDC66`. They are defined once in `client/src/index.css`, so the whole site can be recoloured there.
 
 ---
 

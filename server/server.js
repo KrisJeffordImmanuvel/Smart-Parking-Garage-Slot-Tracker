@@ -278,11 +278,11 @@ if (hasBuiltClient) {
   // Show a short help page instead of "Cannot GET /".
   app.get('/', (req, res) => {
     res.send(`
-      <body style="font-family: system-ui, sans-serif; background: #020617; color: #e2e8f0; padding: 40px;">
-        <h1>Smart Parking API is running ✅</h1>
+      <body style="font-family: system-ui, sans-serif; background: #f0ede5; color: #272b2e; padding: 40px;">
+        <h1 style="color: #004643;">Smart Parking API is running ✅</h1>
         <p>This port (${PORT}) is only the backend. Open the website here:</p>
-        <p style="font-size: 1.4em;"><a style="color: #34d399;" href="http://localhost:5173">http://localhost:5173</a></p>
-        <p>Test the API: <a style="color: #38bdf8;" href="/api/status">/api/status</a></p>
+        <p style="font-size: 1.4em;"><a style="color: #004643; font-weight: bold;" href="http://localhost:5173">http://localhost:5173</a></p>
+        <p>Test the API: <a style="color: #004643;" href="/api/status">/api/status</a></p>
       </body>`);
   });
 }

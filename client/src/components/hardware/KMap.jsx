@@ -15,15 +15,15 @@ const code = (n) => n.toString(2).padStart(2, '0');
 export default function KMap({ title, rowVars, colVars, values, offset = 0, group = [], current = null }) {
   return (
     <div className="inline-block">
-      {title && <p className="mb-1 text-center font-mono text-xs text-slate-400">{title}</p>}
+      {title && <p className="mb-1 text-center font-mono text-xs text-muted">{title}</p>}
       <table className="border-collapse font-mono text-sm">
         <thead>
           <tr>
-            <th className="px-1 text-[10px] font-normal text-slate-500">
+            <th className="px-1 text-[10px] font-normal text-muted">
               {rowVars}\{colVars}
             </th>
             {GRAY.map((c) => (
-              <th key={c} className="w-10 px-1 pb-1 text-xs font-normal text-slate-400">
+              <th key={c} className="w-10 px-1 pb-1 text-xs font-normal text-muted">
                 {code(c)}
               </th>
             ))}
@@ -32,7 +32,7 @@ export default function KMap({ title, rowVars, colVars, values, offset = 0, grou
         <tbody>
           {GRAY.map((r) => (
             <tr key={r}>
-              <th className="pr-2 text-xs font-normal text-slate-400">{code(r)}</th>
+              <th className="pr-2 text-xs font-normal text-muted">{code(r)}</th>
               {GRAY.map((c) => {
                 const minterm = offset + r * 4 + c;
                 const value = values[minterm];
@@ -43,14 +43,14 @@ export default function KMap({ title, rowVars, colVars, values, offset = 0, grou
                     key={c}
                     title={`minterm ${minterm}`}
                     className={
-                      'relative h-10 w-10 border border-slate-700 text-center transition ' +
-                      (inGroup ? 'bg-amber-400/25 ' : '') +
-                      (value === 1 ? 'font-bold text-emerald-300' : value === 'X' ? 'text-slate-500' : 'text-slate-600')
+                      'relative h-10 w-10 border border-line text-center transition ' +
+                      (inGroup ? 'bg-lime/60 ' : '') +
+                      (value === 1 ? 'font-bold text-cyprus' : value === 'X' ? 'text-muted' : 'text-charcoal/35')
                     }
                   >
                     {value}
-                    <span className="absolute right-0.5 bottom-0 text-[8px] text-slate-600">{minterm}</span>
-                    {isCurrent && <span className="absolute inset-0.5 rounded border-2 border-sky-400" />}
+                    <span className="absolute right-0.5 bottom-0 text-[8px] text-charcoal/35">{minterm}</span>
+                    {isCurrent && <span className="absolute inset-0.5 rounded border-2 border-cyprus" />}
                   </td>
                 );
               })}
@@ -74,8 +74,8 @@ export function TermPicker({ terms, selected, onSelect }) {
           className={
             'rounded-lg border px-3 py-1 text-sm transition ' +
             (selected === i
-              ? 'border-amber-400 bg-amber-400/20 text-amber-200'
-              : 'border-slate-700 text-slate-300 hover:border-slate-500')
+              ? 'border-olive bg-lime/40 text-olive'
+              : 'border-line text-charcoal/80 hover:border-cyprus/40')
           }
         >
           <Expr>{term.label}</Expr>

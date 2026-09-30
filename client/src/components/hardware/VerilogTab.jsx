@@ -22,16 +22,16 @@ export default function VerilogTab({ design, status }) {
         <div className="flex flex-wrap items-stretch gap-2">
           {BLOCKS.map((block, i) => (
             <div key={block.name} className="flex items-center gap-2">
-              <div className="rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2">
+              <div className="rounded-xl border border-line bg-beige px-3 py-2">
                 <p className="text-sm font-semibold">{block.name}</p>
-                <p className="font-mono text-[11px] text-slate-400">{block.file}</p>
-                {block.co && <p className="text-[11px] font-semibold text-emerald-400">{block.co}</p>}
+                <p className="font-mono text-[11px] text-muted">{block.file}</p>
+                {block.co && <p className="text-[11px] font-semibold text-cyprus">{block.co}</p>}
               </div>
-              {i < BLOCKS.length - 1 && <span className="text-slate-500">➜</span>}
+              {i < BLOCKS.length - 1 && <span className="text-muted">➜</span>}
             </div>
           ))}
         </div>
-        <p className="mt-3 text-sm text-slate-400">
+        <p className="mt-3 text-sm text-muted">
           The comparator's FULL/EMPTY outputs feed back into the counter's enable, and A = FULL' goes to the FSM and the
           barrier logic (UP = S + E + V·A).
         </p>

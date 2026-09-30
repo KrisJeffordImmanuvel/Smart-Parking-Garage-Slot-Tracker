@@ -1,8 +1,30 @@
 /* Tailwind CSS (v4) - this one line brings in all the utility classes. */
 @import 'tailwindcss';
 
+/* -----------------------------------------------------------------------------
+   COLOUR PALETTE
+   Every colour on the website comes from this list. Tailwind turns each one
+   into classes automatically, e.g. --color-cyprus -> bg-cyprus, text-cyprus,
+   border-cyprus, and bg-cyprus/10 (10 % opacity).
+   ----------------------------------------------------------------------------- */
+@theme {
+  /* The five brand colours */
+  --color-charcoal: #272b2e; /* Charcoal Black  - text, dark panels     */
+  --color-sand: #f0ede5; /*     Sand            - page background      */
+  --color-beige: #f1eee7; /*    Soft Beige      - boxes inside cards   */
+  --color-lime: #cfdc66; /*     Lemon Chartreuse - accents, lit LEDs   */
+  --color-cyprus: #004643; /*   Cyprus          - nav bar, headings, buttons */
+
+  /* Shades made from the brand colours */
+  --color-paper: #fbfaf6; /*    card background (a lighter sand)        */
+  --color-line: #dcd7cb; /*     borders (a darker sand)                 */
+  --color-muted: #5f6468; /*    secondary text (a lighter charcoal)     */
+  --color-olive: #5c6a0c; /*    chartreuse dark enough to read on sand  */
+  --color-alert: #c0392b; /*    red, only for FULL / DENIED / errors    */
+}
+
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  @apply bg-sand text-charcoal antialiased;
 }
 
 /* Small shake used when a car is refused at the gate. */

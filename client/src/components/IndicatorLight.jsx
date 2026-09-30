@@ -1,21 +1,22 @@
 // IndicatorLight.jsx - a round LED lamp that glows when "on" is 1.
+// Colours come from the palette in index.css.
 const COLORS = {
-  red: { on: 'bg-red-500 shadow-[0_0_14px_3px_rgba(239,68,68,0.7)]', off: 'bg-red-950' },
-  green: { on: 'bg-emerald-400 shadow-[0_0_14px_3px_rgba(52,211,153,0.7)]', off: 'bg-emerald-950' },
-  amber: { on: 'bg-amber-400 shadow-[0_0_14px_3px_rgba(251,191,36,0.7)]', off: 'bg-amber-950' },
-  sky: { on: 'bg-sky-400 shadow-[0_0_14px_3px_rgba(56,189,248,0.7)]', off: 'bg-sky-950' },
+  alert: { on: 'bg-alert shadow-[0_0_12px_2px_rgba(192,57,43,0.55)]', off: 'bg-alert/15' }, //   red: FULL, RED light
+  lime: { on: 'bg-lime shadow-[0_0_14px_3px_rgba(207,220,102,0.95)]', off: 'bg-lime/25' }, //    chartreuse: EMPTY, GREEN light
+  olive: { on: 'bg-olive shadow-[0_0_12px_2px_rgba(92,106,12,0.5)]', off: 'bg-olive/15' }, //    car turned away (gate FULL)
+  cyprus: { on: 'bg-cyprus shadow-[0_0_12px_2px_rgba(0,70,67,0.45)]', off: 'bg-cyprus/15' }, // barrier UP
 };
 
-export default function IndicatorLight({ label, on, color = 'red', size = 'h-6 w-6', blink = false }) {
+export default function IndicatorLight({ label, on, color = 'alert', size = 'h-6 w-6', blink = false }) {
   const style = COLORS[color];
   return (
     <div className="flex flex-col items-center gap-1.5">
       <span
-        className={`${size} rounded-full border border-black/40 transition ${on ? style.on : style.off} ${
+        className={`${size} rounded-full border border-charcoal/20 transition ${on ? style.on : style.off} ${
           on && blink ? 'animate-pulse' : ''
         }`}
       />
-      {label && <span className="text-xs font-semibold tracking-wide text-slate-300">{label}</span>}
+      {label && <span className="text-xs font-semibold tracking-wide text-charcoal/80">{label}</span>}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-// SlotGrid.jsx - the 20 parking slots. Green = free, red = occupied.
+// SlotGrid.jsx - the 20 parking slots. Light (Cyprus outline) = free, dark (Charcoal) = occupied.
 // Clicking a slot toggles it (like a sensor in that parking space).
 export default function SlotGrid({ slots, onToggle, disabled }) {
   return (
@@ -15,8 +15,8 @@ export default function SlotGrid({ slots, onToggle, disabled }) {
             className={
               'flex aspect-[3/4] flex-col items-center justify-center gap-1 rounded-xl border-2 font-mono text-sm font-bold transition hover:scale-105 active:scale-95 disabled:cursor-wait ' +
               (occupied
-                ? 'border-red-400 bg-red-500/20 text-red-300'
-                : 'border-emerald-400 bg-emerald-500/15 text-emerald-300')
+                ? 'border-charcoal bg-charcoal text-lime'
+                : 'border-cyprus/40 bg-paper text-cyprus hover:border-cyprus')
             }
           >
             <span>P{String(slot.id).padStart(2, '0')}</span>
